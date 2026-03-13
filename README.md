@@ -27,7 +27,7 @@ Poi installate l'estensione ufficiale per Julia tramite il Marketplace di VSCode
 ### 3️⃣ Clonare la repository
 Se avete `git` installato, potete clonare questa repository eseguendo il comando:
 ```bash
-git clone https://github.com/IvanBioli/elementifiniti2425.git
+git clone https://github.com/IvanBioli/elementifiniti2526.git
 ```
 Se non avete `git`, potete scaricare il contenuto come file ZIP e decomprimerlo.
 
