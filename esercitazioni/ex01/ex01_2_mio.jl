@@ -48,7 +48,7 @@ function compute_error(u_exact, u_approx, x)
 end
 
 # Mesh sizes to test different grid resolutions
-Nvals = [10, 20, 40, 80, 160, 320]  # Testing for N = 10, 100, 1000, ...
+Nvals = 10 .^ (1:5)  # Testing for N = 10, 100, 1000, ...
 mesh_sizes = Float64[]                        # Store mesh sizes
 errors = Float64[]                            # Store errors
 
