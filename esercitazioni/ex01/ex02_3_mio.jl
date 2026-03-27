@@ -15,7 +15,7 @@ end
 # Function to plot the mesh
 function plot_mesh(T, p)
     fig = plot() # Initialize an empty plot
-    for j = 1:size(T, 2)
+    for j in eachindex(axes(T, 2))
         v1 = p[:,T[1,j]]
         v2 = p[:,T[2,j]]
         v3 = p[:,T[3,j]]
