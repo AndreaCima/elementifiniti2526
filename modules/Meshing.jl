@@ -524,3 +524,38 @@ function set_edges_info!(mesh::Mesh, edges2nodes::Array{TT}, elems2edges::Array{
     mesh.elems2orientation = elems2orientation
     return nothing
 end
+
+"""
+    get_Bk!(mesh::Mesh)
+
+Compute and store the Bk matrices for the mesh.
+
+# Arguments
+- `mesh::Mesh`: The mesh object.
+
+# Returns
+- `Bk::Array{Float64,3}`: The Bk matrices.
+- `ak::Matrix{Float64}`: The ak matrices.
+"""
+function get_Bk!(mesh::Mesh)
+    ###########################################################################
+    ####################### PUT YOUR CODE HERE ################################
+    ###########################################################################
+end
+
+"""
+    get_detBk!(mesh::Mesh)
+
+Compute and store the determinants of the Bk matrices for the mesh.
+
+# Arguments
+- `mesh::Mesh`: The mesh object.
+
+# Returns
+- `detBk::Vector{Float64}`: The determinants of the Bk matrices.
+"""
+function get_detBk!(mesh::Mesh)
+    ###########################################################################
+    ####################### PUT YOUR CODE HERE ################################
+    ###########################################################################
+end
