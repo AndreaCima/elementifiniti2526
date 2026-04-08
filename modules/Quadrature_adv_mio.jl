@@ -19,8 +19,11 @@ struct TriQuad
     weights::Array
 end
 
+M0 = zeros(2, 1)
+M0[1, 1] = 1/3
+M0[2, 1] = 1/3
 
-Q0_ref = TriQuad("Q0", 2, [1/3 1/3], [1/2])
+Q0_ref = TriQuad("Q0", 2, M0, [1/2])
 Q1_ref = TriQuad("Q1", 2, [0 1 0; 0 0 1], [1/6 1/6 1/6])
 Q2_ref = TriQuad("Q2", 3, [1/2 0 1/2; 0 1/2 1/2], [1/6 1/6 1/6])
 
@@ -38,9 +41,29 @@ Perform numerical integration of a function over a mesh using a given quadrature
 - `I_approx::Float64`: The approximate integral of the function over the mesh.
 """
 function Quadrature(u, mesh::Mesh, ref_quad::TriQuad)
-    ###########################################################################
-    ####################### PUT YOUR CODE HERE ################################
-    ###########################################################################
+    I = 0.0
+    WQ = ref_quad.weights
+    PQ = ref_quad.points
+    q = length(WQ)
+    Bk, ak = get_Bk!(mesh)
+    detBk = get_detBk!(mesh)
+    Tri = mesh.T
+
+    for i in eachindex(axes(Tri, 2))
+        T = 0
+        B = Bk[i]
+        a = ak[i]
+        d = detBk[i]
+        for j in 1:q
+            p = PQ[:, j]
+            w = WQ[j]
+            pT = a + B * p
+
+            T += w * u(pT)
+        end
+        I += d*T
+    end
+    return I
 end
 
 # Evaluation of a function
@@ -60,9 +83,7 @@ Evaluate a function at given points within an element.
 - `u_evals::Matrix`: The evaluated function values at the given points.
 """
 function eval_u(u::Function, points_elem::Matrix, mesh::Mesh, tri_idx::Integer, quadrule::TriQuad)
-    ###########################################################################
-    ####################### PUT YOUR CODE HERE ################################
-    ###########################################################################
+    return u.(eachcol(points_elem))
 end
 
 """
