@@ -538,23 +538,27 @@ Compute and store the Bk matrices for the mesh.
 - `ak::Matrix{Float64}`: The ak matrices.
 """
 function get_Bk!(mesh::Mesh)
+    if isnothing(mesh.Bk)
 
-    T = mesh.T
-    p = mesh.p
+        T = mesh.T
+        p = mesh.p
 
-    Bk = []
-    ak = []
-    for i in eachindex(axes(T, 2))
+        Bk = []
+        ak = []
+        for i in eachindex(axes(T, 2))
         v1 = mesh.p[:, mesh.T[1, i]]
         v2 = mesh.p[:, mesh.T[2, i]]
         v3 = mesh.p[:, mesh.T[3, i]]
         push!(ak, v1)
         push!(Bk, [v2-v1 v3-v1])
+        end
+        mesh.Bk = Bk
+        mesh.ak = ak
     end
-    mesh.Bk = Bk
-    mesh.ak = ak
-    return Bk, ak
+
+    return mesh.Bk, mesh.ak
 end
+    
 
 """
     get_detBk!(mesh::Mesh)
@@ -569,17 +573,16 @@ Compute and store the determinants of the Bk matrices for the mesh.
 """
 function get_detBk!(mesh::Mesh)
 
-
-    Bk, ak = get_Bk!(mesh)
     if isnothing(mesh.detBk)
+        Bk, ak = get_Bk!(mesh)
         l = length(Bk)
         detBk = zeros(l)
         for i = 1:l
             detBk[i] = abs(det(Bk[i]))
         end
         mesh.detBk = detBk
+        
     end
+    return mesh.detBk
     
-
-    return detBk
 end
