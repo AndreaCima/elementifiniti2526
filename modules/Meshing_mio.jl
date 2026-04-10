@@ -571,12 +571,15 @@ function get_detBk!(mesh::Mesh)
 
 
     Bk, ak = get_Bk!(mesh)
-    l = length(Bk)
-    detBk = zeros(l)
-    for i = 1:l
-        detBk[i] = abs(det(Bk[i]))
-    end
+    if isnothing(mesh.detBk)
+        l = length(Bk)
+        detBk = zeros(l)
+        for i = 1:l
+            detBk[i] = abs(det(Bk[i]))
+        end
         mesh.detBk = detBk
+    end
+    
 
     return detBk
 end
