@@ -4,6 +4,7 @@
 import Meshes, CairoMakie
 import Gmsh: gmsh
 using LinearAlgebra
+import TriplotRecipes
 import PlotlyJS
 
 import Gmsh: gmsh
@@ -538,9 +539,15 @@ Compute and store the Bk matrices for the mesh.
 - `ak::Matrix{Float64}`: The ak matrices.
 """
 function get_Bk!(mesh::Mesh)
-    ###########################################################################
-    ####################### PUT YOUR CODE HERE ################################
-    ###########################################################################
+    if isnothing(mesh.Bk)
+        print("Computing Bk...")
+        ak, bk, ck = mesh.p[:, mesh.T[1, :]], mesh.p[:, mesh.T[2, :]], mesh.p[:, mesh.T[3, :]]
+        Bk = permutedims([bk - ak;;; ck - ak], [1, 3, 2])
+        mesh.Bk = Bk
+        mesh.ak = ak
+        print("done\n")
+    end
+    return mesh.Bk, mesh.ak
 end
 
 """
@@ -555,7 +562,119 @@ Compute and store the determinants of the Bk matrices for the mesh.
 - `detBk::Vector{Float64}`: The determinants of the Bk matrices.
 """
 function get_detBk!(mesh::Mesh)
+    Bk, _ = get_Bk!(mesh)
+    if isnothing(mesh.detBk)
+        print("Computing |det(Bk)|...")
+        detBk = zeros(Float64, size(mesh.T, 2))
+        for i = 1:size(mesh.T, 2)
+            detBk[i] = abs(det(Bk[:, :, i]))
+        end
+        # EQUIVALENT: detBk = abs.(dropdims(mapslices(det, Bk, dims=(1,2)), dims=(1,2)))        
+        mesh.detBk = detBk
+        print("done\n")
+    end
+    return mesh.detBk
+end
+
+"""
+    get_invBk!(mesh::Mesh)
+
+Compute and store the inverses of the Bk matrices for the mesh.
+
+# Arguments
+- `mesh::Mesh`: The mesh object.
+
+# Returns
+- `invBk::Array{Float64,3}`: The inverses of the Bk matrices.
+"""
+function get_invBk!(mesh::Mesh)
     ###########################################################################
-    ####################### PUT YOUR CODE HERE ################################
-    ###########################################################################
+    ############################ ADD CODE HERE ################################
+    ###########################################################################    
+end
+
+"""
+    plot_flat(mesh::Mesh, uh::Vector; plot_msh::Bool=true)
+
+Plot a 2D flat plot of the mesh and the solution vector.
+
+# Arguments
+- `mesh::Mesh`: The mesh object.
+- `uh::Vector`: The solution vector.
+- `plot_msh::Bool`: Whether to plot the mesh.
+
+# Returns
+- `plt`: The plot object.
+"""
+function plot_flat(mesh::Mesh, uh::Vector; plot_msh::Bool=true)
+    # Get x, y
+    x, y = mesh.p[1,:], mesh.p[2,:]
+    
+    # Execute plot
+    plt = plot(aspect_ratio=:equal)
+    TriplotRecipes.tripcolor!(x,y,uh,mesh.T,color=:jet)
+    if plot_msh
+        TriplotRecipes.trimesh!(x,y,mesh.T, fillalpha=0.0,linecolor=:white,linewidth=0.5)
+    end
+
+    return plt
+end
+
+"""
+    plot_surf(msh::Mesh, uh::Vector; plot_msh::Bool=true)
+
+Plot a 3D surface plot of the mesh and the solution vector.
+
+# Arguments
+- `msh::Mesh`: The mesh object.
+- `uh::Vector`: The solution vector.
+- `plot_msh::Bool`: Whether to plot the mesh.
+
+# Returns
+- `plt`: The plot object.
+"""
+function plot_surf(msh::Mesh, uh::Vector; plot_msh::Bool=true)
+    # Get x, y, z and triangulation
+    x = msh.p[1,:]
+    y = msh.p[2,:]
+    z = uh
+    T = msh.T
+
+    surface_plot = PlotlyJS.mesh3d(
+        x=x,
+        y=y,
+        z=z,
+        colorbar_title="",
+        colorscale="Jet",
+        # Intensity of each vertex, which will be interpolated and color-coded
+        intensity=z,
+        # i, j and k give the vertices of triangles
+        # here we represent the 4 triangles of the tetrahedron surface
+        i=T[1,:].-1,
+        j=T[2,:].-1,
+        k=T[3,:].-1,
+        name="y",
+        showscale=true,
+    )
+
+    # Initialize an empty list to hold the lines
+    toplot = [surface_plot]
+    if plot_msh
+        for tri = 1:size(T, 2)
+            # Create a Scatter3d trace and append it to the lines array
+            i, j, k = T[1, tri], T[2, tri], T[3, tri]
+            push!(toplot, PlotlyJS.scatter3d(
+                x = [x[i], x[j], x[k], x[i]], 
+                y = [y[i], y[j], y[k], y[i]], 
+                z = [z[i], z[j], z[k], z[i]], 
+                mode = "lines", 
+                line = PlotlyJS.attr(color ="white"),  # Set color to white
+                name = ""
+            ))
+        end
+    end
+
+    # Plot the data
+    plt = PlotlyJS.plot(toplot)
+    return plt
 end
