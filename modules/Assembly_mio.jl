@@ -54,10 +54,13 @@ Compute the shape functions for the Poisson problem.
 # Returns
 - `shapef`: The shape functions evaluated at the quadrature points.
 """
-@memoize function shapef_2DLFE(quadrule::TriQuad)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+function shapef_2DLFE(quadrule::TriQuad) # aggiungere @memoize prima di function una volta controllato che il codice funzioni
+    PQ = quadrule.points
+    shapef = zeros(3, size(PQ, 2))
+    shapef[1, :] = 1 .- PQ[1, :] .- PQ[2, :] # prima funzione di base
+    shapef[2, :] = PQ[1, :]  # seconda funzione di base
+    shapef[3, :] = PQ[2, :]  # terza funzione di base
+    return shapef
 end
 
 """
@@ -71,10 +74,12 @@ Compute the gradients of the shape functions for the Poisson problem.
 # Returns
 - `∇shapef`: The gradients of the shape functions evaluated at the quadrature points.
 """
-@memoize function ∇shapef_2DLFE(quadrule::TriQuad)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+function ∇shapef_2DLFE(quadrule::TriQuad) # aggiungere @memoize prima di function una volta controllato che il codice funzioni
+    # il risultato dipende solo dal numero di punti della quadratura e non dalla loro espressione 
+    PQ = quadrule.points
+    face = [-1 1 0; -1 0 1]
+    ∇shapef = repeat(face, 1, 1, size(PQ, 2))
+    return ∇shapef
 end
 
 """
