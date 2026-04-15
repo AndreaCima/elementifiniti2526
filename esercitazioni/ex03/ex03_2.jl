@@ -1,7 +1,7 @@
 # Author: Ivan Bioli (https://github.com/IvanBioli)
 
 import Pkg
-Pkg.activate("elementifinitiunipv_pkg")
+# Pkg.activate("elementifinitiunipv_pkg")
 using Revise
 
 # Load the necessary files
