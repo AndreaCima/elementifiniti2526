@@ -141,7 +141,7 @@ function poisson_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index:
 
     Q_vector = Q0_ref
     phi_val_vector = shapef_2DLFE(Q_vector)
-    f_val = Q_vector.points # per valutare la funzione f
+    q_val = Q_vector.points # per valutare la funzione f
     W_vector = Q_vector.weights
     
     # Inizializzo le nuove Ke e f a zero
@@ -159,6 +159,10 @@ function poisson_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index:
             end
         
         end
+        for t in 1:size(Q_vector.points, 2) # sommo su tutti i nodi di quadratura
+            fe[i] += f(Bk*q_val[:, t] + ak)*phi_val_vector[i, t] * detBk * W_vector[t]
+        end
+
     end    
 
 
