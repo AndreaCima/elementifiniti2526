@@ -120,3 +120,64 @@ Evaluate a function at given points within an element.
 function eval_u(u::Function, points_elem::Matrix, mesh::Mesh, tri_idx::Integer, quadrule::TriQuad)
     return mapslices(u, points_elem, dims=1)
 end
+
+"""
+    eval_u(uh::Vector, points_elem::Matrix, mesh::Mesh, tri_idx::Integer, quadrule::TriQuad)
+
+Evaluate a linear finite element solution at given quadrature points within an element.
+
+# Arguments
+- `uh::Vector`: The finite element solution vector.
+- `points_elem::Matrix`: The points at which to evaluate the solution (ignored).
+- `mesh::Mesh`: The mesh object.
+- `tri_idx::Integer`: The index of the current element.
+- `quadrule::TriQuad`: The quadrature rule.
+
+# Returns
+- `uh_evals::Matrix`: The evaluated solution values at the given points.
+"""
+function eval_u(uh::Vector, points_elem::Matrix, mesh::Mesh, tri_idx::Integer, quadrule::TriQuad)
+    ###########################################################################
+    ############################ ADD CODE HERE ################################
+    ########################################################################### 
+end
+
+"""
+    L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
+
+Compute the L2 error between a function and a finite element solution over a mesh.
+
+# Arguments
+- `u::Function`: The exact solution function.
+- `uh::Vector`: The finite element solution vector.
+- `mesh::Mesh`: The mesh object.
+- `ref_quad::TriQuad`: The reference quadrature rule.
+
+# Returns
+- `L2_error::Float64`: The L2 error between the exact solution and the finite element solution.
+"""
+function L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
+    ###########################################################################
+    ############################ ADD CODE HERE ################################
+    ########################################################################### 
+end
+
+"""
+    H1semierror(∇u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
+
+Compute the H1 semi-norm error between the gradient of a function and a finite element solution over a mesh.
+
+# Arguments
+- `∇u::Function`: The gradient of the exact solution function.
+- `uh::Vector`: The finite element solution vector.
+- `mesh::Mesh`: The mesh object.
+- `ref_quad::TriQuad`: The reference quadrature rule.
+
+# Returns
+- `H1_semi_error::Float64`: The H1 semi-norm error between the gradient of the exact solution and the finite element solution.
+"""
+function H1semierror(∇u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
+    ###########################################################################
+    ############################ ADD CODE HERE ################################
+    ########################################################################### 
+end
