@@ -134,12 +134,12 @@ function poisson_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index:
     detBk = detB[cell_index]
     invBk = invB[cell_index]
 
-    Q_matrix = Q2_ref
+    Q_matrix = Q0_ref
     phi_grad = ∇shapef_2DLFE(Q_matrix) # per la stiffness
     # phi_val_matrix = shapef_2DLFE(Q_matrix)
     W_matrix = Q_matrix.weights
 
-    Q_vector = Q0_ref
+    Q_vector = Q2_ref
     phi_val_vector = shapef_2DLFE(Q_vector)
     q_val = Q_vector.points # per valutare la funzione f
     W_vector = Q_vector.weights
