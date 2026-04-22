@@ -1,9 +1,11 @@
 # Author: Ivan Bioli (https://github.com/IvanBioli)
 # Inspired by code written by Jochen Hinz (https://github.com/JochenHinz) for MATH-451 @ EPFL
 
+using Gridap
 import Meshes, CairoMakie
 import Gmsh: gmsh
 using LinearAlgebra
+import TriplotRecipes
 import PlotlyJS
 
 import Gmsh: gmsh
@@ -543,14 +545,14 @@ function get_Bk!(mesh::Mesh)
         T = mesh.T
         p = mesh.p
 
-        Bk = []
-        ak = []
+        Bk = zeros(Float64, 2, 2, size(T, 2))
+        ak = zeros(Float64, 2, size(T, 2))
         for i in eachindex(axes(T, 2))
         v1 = mesh.p[:, mesh.T[1, i]]
         v2 = mesh.p[:, mesh.T[2, i]]
         v3 = mesh.p[:, mesh.T[3, i]]
-        push!(ak, v1)
-        push!(Bk, [v2-v1 v3-v1])
+        ak[:, i] = v1
+        Bk[:, :, i] = [v2-v1 v3-v1]
         end
         mesh.Bk = Bk
         mesh.ak = ak
@@ -574,11 +576,11 @@ Compute and store the determinants of the Bk matrices for the mesh.
 function get_detBk!(mesh::Mesh)
 
     if isnothing(mesh.detBk)
-        Bk, ak = get_Bk!(mesh)
-        l = length(Bk)
+        Bk = mesh.Bk
+        l = size(Bk, 3)
         detBk = zeros(l)
         for i = 1:l
-            detBk[i] = abs(det(Bk[i]))
+            detBk[i] = abs(det(Bk[:, :, i]))
         end
         mesh.detBk = detBk
         
@@ -600,11 +602,10 @@ Compute and store the inverses of the Bk matrices for the mesh.
 """
 function get_invBk!(mesh::Mesh)
     if isnothing(mesh.invBk)
-        Bk, _ = get_Bk!(mesh)
-        invBk = []
-        for i in eachindex(Bk)
-            push!(invBk, inv(Bk[i]))
-
+        Bk = mesh.Bk
+        invBk = zeros(Float64, 2, 2, size(Bk, 3))
+        for i in eachindex(axes(Bk, 3))
+            invBk[:, :, i] = inv(Bk[:, :, i])
         end
         mesh.invBk = invBk
     end
