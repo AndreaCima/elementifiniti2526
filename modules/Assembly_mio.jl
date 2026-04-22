@@ -66,6 +66,52 @@ function assemble_global(mesh::Mesh, local_assembler!)
     F_glob = Matrix(sparse(rows_f, ones(size(rows_f)), data_f))
     return A_glob, F_glob
 end
+
+"""
+    impose_dirichlet(A, b, g, mesh)
+
+Impose Dirichlet boundary conditions on the system.
+
+# Arguments
+- `A`: The global stiffness matrix.
+- `b`: The global force vector.
+- `g`: The Dirichlet boundary condition function.
+- `mesh::Mesh`: The mesh object.
+
+# Returns
+- `A_cond`: The modified stiffness matrix with Dirichlet conditions imposed.
+- `b_cond`: The modified force vector with Dirichlet conditions imposed.
+- `uh`: The solution vector with Dirichlet conditions applied.
+"""
+function impose_dirichlet(A, b, g, mesh)
+    F = mesh.freedofs
+    D = mesh.dirichletdofs
+    T = mesh.T
+    p = mesh.p
+
+    pD = p[:, T[D]] # coordinate dei punti di bordo
+
+    # pD_g = pD
+
+    # for col in eachindex(pD)
+    #     pD_g[:, col] = g.(pD[:, col])
+    # end
+
+    A_cond = A[F, F]
+    b_cond = b[F] - A[F, D]*g.(eachcol(pD))
+
+    uh = zeros(size(p, 2))
+    u_F = A_cond \ b_cond
+    u_D = g.(eachcol(pD))
+
+    uh[F] = u_F
+    uh[D] = u_D
+
+    return A_cond, b_cond, uh
+
+end
+
+
 ########################### POISSON PROBLEM ###########################
 """
     shapef_2DLFE(quadrule::TriQuad)
@@ -129,10 +175,10 @@ function poisson_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index:
     detB = get_detBk!(mesh)
     invB = get_invBk!(mesh)
 
-    Bk = B[cell_index]
-    ak = a[cell_index]
+    Bk = B[:, :, cell_index]
+    ak = a[:, cell_index]
     detBk = detB[cell_index]
-    invBk = invB[cell_index]
+    invBk = invB[:, :, cell_index]
 
     Q_matrix = Q0_ref
     phi_grad = ∇shapef_2DLFE(Q_matrix) # per la stiffness
