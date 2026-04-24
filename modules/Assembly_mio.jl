@@ -91,12 +91,6 @@ function impose_dirichlet(A, b, g, mesh)
 
     pD = p[:, T[D]] # coordinate dei punti di bordo
 
-    # pD_g = pD
-
-    # for col in eachindex(pD)
-    #     pD_g[:, col] = g.(pD[:, col])
-    # end
-
     A_cond = A[F, F]
     b_cond = b[F] - A[F, D]*g.(eachcol(pD))
 
@@ -212,4 +206,55 @@ function poisson_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index:
     end    
 
 
+end
+
+########################### TRANSPORT PROBLEM ###########################
+"""
+    transport_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index::Integer, f, k, β; stab = nothing, δ = 0.5)
+
+Assemble the local stiffness matrix and force vector for the transport problem.
+
+# Arguments
+- `Ke::Matrix`: The local stiffness matrix to be assembled.
+- `fe::Vector`: The local force vector to be assembled.
+- `mesh::Mesh`: The mesh object.
+- `cell_index::Integer`: The index of the current cell.
+- `f`: The source term function.
+- `k`: The diffusion coefficient function.
+- `β`: The advection velocity function.
+- `stab`: The stabilization method (optional).
+- `δ`: The stabilization parameter (optional).
+
+# Returns
+- `Ke`: The assembled local stiffness matrix.
+- `fe`: The assembled local force vector.
+"""
+function transport_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index::Integer, f, k, β; stab = nothing, δ = 0.5)
+    ###########################################################################
+    ############################ ADD CODE HERE ################################
+    ########################################################################### 
+end
+
+########################### DARCY PROBLEM ###########################
+"""
+    darcy_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index::Integer, f, k)
+
+Assemble the local stiffness matrix and force vector for the Darcy problem.
+
+# Arguments
+- `Ke::Matrix`: The local stiffness matrix to be assembled.
+- `fe::Vector`: The local force vector to be assembled.
+- `mesh::Mesh`: The mesh object.
+- `cell_index::Integer`: The index of the current cell.
+- `f`: The source term function.
+- `k`: The permeability coefficient function.
+
+# Returns
+- `Ke`: The assembled local stiffness matrix.
+- `fe`: The assembled local force vector.
+"""
+function darcy_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index::Integer, f, k)
+    ###########################################################################
+    ############################ ADD CODE HERE ################################
+    ########################################################################### 
 end
