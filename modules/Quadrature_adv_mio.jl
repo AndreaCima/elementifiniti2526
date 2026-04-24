@@ -106,3 +106,70 @@ function eval_u(uh::Vector, points_elem::Matrix, mesh::Mesh, tri_idx::Integer, q
     ####################### PUT YOUR CODE HERE ################################
     ###########################################################################
 end
+
+
+"""
+    L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
+
+Compute the L2 error between a function and a finite element solution over a mesh.
+
+# Arguments
+- `u::Function`: The exact solution function.
+- `uh::Vector`: The finite element solution vector.
+- `mesh::Mesh`: The mesh object.
+- `ref_quad::TriQuad`: The reference quadrature rule.
+
+# Returns
+- `L2_error::Float64`: The L2 error between the exact solution and the finite element solution.
+"""
+function L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
+    PQ = ref_quad.points
+    WQ = ref_quad.weights
+    T = mesh.T
+    p = mesh.p
+
+    Bk = mesh.Bk
+    ak = mesh.ak
+    detBk = mesh.detBk
+
+    L2_error = 0.0
+
+    for k in eachindex(axes(T, 2)) # loop sui triangoli
+
+        B = Bk[:, :, k]
+        a = ak[:, k]
+        detB = detBk[k]
+        shapef = shapef_2DLFE(ref_quad)
+
+        for j in 1:size(PQ, 2)
+            u_appr = 0.0
+            for i in 1:3 
+                u_appr += uh[T[i, k]] * shapef[i, j]
+            end
+            L2_error += detB * WQ[j] * abs(u( B*PQ[:, j] + a ) - u_appr)^2
+            
+        end
+    end
+    return L2_error
+
+end
+
+"""
+    H1semierror(∇u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
+
+Compute the H1 semi-norm error between the gradient of a function and a finite element solution over a mesh.
+
+# Arguments
+- `∇u::Function`: The gradient of the exact solution function.
+- `uh::Vector`: The finite element solution vector.
+- `mesh::Mesh`: The mesh object.
+- `ref_quad::TriQuad`: The reference quadrature rule.
+
+# Returns
+- `H1_semi_error::Float64`: The H1 semi-norm error between the gradient of the exact solution and the finite element solution.
+"""
+function H1semierror(∇u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
+    ###########################################################################
+    ############################ ADD CODE HERE ################################
+    ########################################################################### 
+end
