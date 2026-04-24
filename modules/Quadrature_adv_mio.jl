@@ -51,8 +51,8 @@ function Quadrature(u, mesh::Mesh, ref_quad::TriQuad)
 
     for i in eachindex(axes(Tri, 2))
         T = 0
-        B = Bk[i]
-        a = ak[i]
+        B = Bk[:, :, i]
+        a = ak[:, i]
         d = detBk[i]
         for j in 1:q
             p = PQ[:, j]
