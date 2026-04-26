@@ -128,9 +128,8 @@ function L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
     T = mesh.T
     p = mesh.p
 
-    Bk = mesh.Bk
-    ak = mesh.ak
-    detBk = mesh.detBk
+    Bk, ak = get_Bk!(mesh)
+    detBk = get_detBk!(mesh)
 
     L2_error = 0.0
 
@@ -150,7 +149,7 @@ function L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
             
         end
     end
-    return L2_error
+    return sqrt(L2_error)
 
 end
 
