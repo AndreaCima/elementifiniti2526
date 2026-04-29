@@ -102,9 +102,11 @@ Evaluate a linear finite element solution at given quadrature points within an e
 - `uh_evals::Matrix`: The evaluated solution values at the given points.
 """
 function eval_u(uh::Vector, points_elem::Matrix, mesh::Mesh, tri_idx::Integer, quadrule::TriQuad)
-    ###########################################################################
-    ####################### PUT YOUR CODE HERE ################################
-    ###########################################################################
+    shapef = shapef_2DLFE(quadrule)
+    triangle = mesh.T[:, tri_idx]
+    coeff = uh[triangle]
+    coeff = reshape(coeff, (1, length(coeff)))
+    return coeff * shapef
 end
 
 """
