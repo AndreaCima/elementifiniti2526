@@ -48,10 +48,10 @@ uh[get_freedofs(msh)] = A_cond \ b_cond
 
 # Plot the solution
 plt = plot_flat(msh, uh; plot_msh = true)
-savefig(plt, "./figures_julia/ex07_1SG_solution_flat.pdf") # Save plot
+savefig(plt, "./figures/ex07_1SG_solution_flat.pdf") # Save plot
 
 plt = plot_surf(msh, uh; plot_msh = false)
-PlotlyJS.savefig(plt, "./figures_julia/ex07_1SG_solution_surf.pdf")
+PlotlyJS.savefig(plt, "./figures/ex07_1SG_solution_surf.pdf")
 display(plt) # Save plot
 end
 
@@ -66,10 +66,10 @@ uh[get_freedofs(msh)] = A_cond \ b_cond
 
 # Plot the solution
 plt = plot_flat(msh, uh; plot_msh = true)
-savefig(plt, "./figures_julia/ex07_1NCAD_solution_flat.pdf") # Save plot
+savefig(plt, "./figures/ex07_1NCAD_solution_flat.pdf") # Save plot
 
 plt = plot_surf(msh, uh; plot_msh = false)
-PlotlyJS.savefig(plt, "./figures_julia/ex07_1NCAD_solution_surf.pdf")
+PlotlyJS.savefig(plt, "./figures/ex07_1NCAD_solution_surf.pdf")
 display(plt) # Save plot
 end
 
@@ -84,10 +84,10 @@ uh[get_freedofs(msh)] = A_cond \ b_cond
 
 # Plot the solution
 plt = plot_flat(msh, uh; plot_msh = true)
-savefig(plt, "./figures_julia/ex07_1NCSD_solution_flat.pdf") # Save plot
+savefig(plt, "./figures/ex07_1NCSD_solution_flat.pdf") # Save plot
 
 plt = plot_surf(msh, uh; plot_msh = false)
-PlotlyJS.savefig(plt, "./figures_julia/ex07_1NCSD_solution_surf.pdf")
+PlotlyJS.savefig(plt, "./figures/ex07_1NCSD_solution_surf.pdf")
 display(plt) # Save plot
 end
 
@@ -102,9 +102,9 @@ uh[get_freedofs(msh)] = A_cond \ b_cond
 
 # Plot the solution
 plt = plot_flat(msh, uh; plot_msh = true)
-savefig(plt, "./figures_julia/ex07_1SUPG_solution_flat.pdf") # Save plot
+savefig(plt, "./figures/ex07_1SUPG_solution_flat.pdf") # Save plot
 
 plt = plot_surf(msh, uh; plot_msh = false)
-PlotlyJS.savefig(plt, "./figures_julia/ex07_1SUPG_solution_surf.pdf")
+PlotlyJS.savefig(plt, "./figures/ex07_1SUPG_solution_surf.pdf")
 display(plt) # Save plot
 end
