@@ -137,9 +137,11 @@ Evaluate a linear finite element solution at given quadrature points within an e
 - `uh_evals::Matrix`: The evaluated solution values at the given points.
 """
 function eval_u(uh::Vector, points_elem::Matrix, mesh::Mesh, tri_idx::Integer, quadrule::TriQuad)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+    shapef = shapef_2DLFE(quadrule)
+    triangle = mesh.T[:, tri_idx]
+    coeff = uh[triangle]
+    coeff = reshape(coeff, (1, length(coeff)))
+    return coeff * shapef
 end
 
 """
@@ -157,9 +159,25 @@ Compute the L2 error between a function and a finite element solution over a mes
 - `L2_error::Float64`: The L2 error between the exact solution and the finite element solution.
 """
 function L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+    # Compute matrices for pushforward of reference element
+    Bk, ak = get_Bk!(mesh)
+    # Compute the absolute value of the determinant
+    detBk = get_detBk!(mesh)
+    # Get quadrature points and weights on the reference element
+    points_refelem, weights_refelem = ref_quad.points, ref_quad.weights
+    points_elem = zeros(Float64, size(points_refelem))
+    u_evals = zeros(Float64, size(weights_refelem))
+
+    # Loop across all elements
+    n_tri = size(mesh.T, 2)
+    I_approx::Float64 = 0
+    for i = 1:n_tri
+        points_elem = Bk[:, :, i] * points_refelem .+ ak[:, i] # Points in the current element
+        u_evals = eval_u(u, points_elem, mesh, i, ref_quad)
+        uh_evals = eval_u(uh, points_elem, mesh, i, ref_quad)
+        I_approx += sum((u_evals-uh_evals) .^2 .* weights_refelem) * detBk[i]
+    end
+    return sqrt(I_approx)
 end
 
 """

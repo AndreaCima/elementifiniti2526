@@ -32,11 +32,21 @@ git clone https://github.com/IvanBioli/elementifiniti2526.git
 Se non avete `git`, potete scaricare il contenuto come file ZIP e decomprimerlo.
 
 ### 4️⃣ Installare i pacchetti necessari
-Entrate nella cartella del progetto e aprite un terminale, quindi eseguite:
+Aprite ed eseguite il file `src_julia/exercises/ex00/ex00_packages.jl` in VSCode, oppure da terminale:
 ```bash
-julia --project=./elementifinitiunipv_pkg/ -e "using Pkg; Pkg.instantiate()"
+julia src_julia/exercises/ex00/ex00_packages.jl
 ```
-Questo comando imposta l'ambiente di lavoro, scarica e installa i pacchetti richiesti.
+
+Esistono due modalità di installazione — scegliete modificando la prima riga del file:
+
+- **Pacchetti locali (ambiente di progetto):** lasciate attiva la riga
+  ```julia
+  Pkg.activate("elementifinitiunipv_pkg"; shared=false)
+  ```
+  I pacchetti vengono installati nell'ambiente isolato `elementifinitiunipv_pkg/`. Tenete questa riga **attiva** anche in tutti i file delle esercitazioni successive.
+
+- **Pacchetti globali _(opzione consigliata)_:** commentate la riga sopra (aggiungete `#` davanti).
+  I pacchetti vengono installati nell'ambiente Julia globale e sono disponibili senza attivare alcun progetto. Assicuratevi che la stessa riga sia **commentata** anche in tutti i file delle esercitazioni successive.
 
 ## 🎓 Primi Passi in Julia
 Per seguire il corso con efficacia, è necessario completare il tutorial introduttivo su JuliaAcademy:
