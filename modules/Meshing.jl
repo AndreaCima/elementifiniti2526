@@ -589,9 +589,19 @@ Compute and store the inverses of the Bk matrices for the mesh.
 - `invBk::Array{Float64,3}`: The inverses of the Bk matrices.
 """
 function get_invBk!(mesh::Mesh)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+    Bk, _ = get_Bk!(mesh)
+    if isnothing(mesh.invBk)
+        print("Computing inv(Bk)...")
+        invBk = mapslices(inv, Bk, dims=(1, 2))
+        # EQUIVALENT 
+        # invBk = zeros(Float64, size(Bk))
+        # for i = 1:size(Bk, 3)
+        #     invBk[:, :, i] = inv(Bk[:, :, i])
+        # end
+        mesh.invBk = invBk
+        print("done\n")
+    end
+    return mesh.invBk
 end
 
 """
