@@ -254,7 +254,46 @@ Assemble the local stiffness matrix and force vector for the Darcy problem.
 - `fe`: The assembled local force vector.
 """
 function darcy_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index::Integer, f, k)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+    B, a = get_Bk!(mesh)
+    detB = get_detBk!(mesh)
+    invB = get_invBk!(mesh)
+
+    Bk = B[:, :, cell_index]
+    ak = a[:, cell_index]
+    detBk = detB[cell_index]
+    invBk = invB[:, :, cell_index]
+
+    Q_matrix = Q0_ref
+    phi_grad = ∇shapef_2DLFE(Q_matrix) # per la stiffness
+    # phi_val_matrix = shapef_2DLFE(Q_matrix)
+    W_matrix = Q_matrix.weights
+    P_matrix = Q_matrix.points
+
+    Q_vector = Q2_ref
+    phi_val_vector = shapef_2DLFE(Q_vector)
+    q_val = Q_vector.points # per valutare la funzione f
+    W_vector = Q_vector.weights
+    
+    # Inizializzo le nuove Ke e f a zero
+    fill!(Ke, 0)
+    fill!(fe, 0)
+
+    for i=1:3
+        for j=1:3
+            # fisso la funzione di base e prendo tutte le coordinate dei punti e tutti i punti di quadratura
+            fattore_∇phi_i = transpose(invBk)*phi_grad[:, i, :]
+            fattore_∇phi_j = transpose(invBk)*phi_grad[:, j, :]
+
+            for s in 1:size(Q_matrix.points, 2) # sommo su tutti i punti di quadratura
+                Ke[i, j] += k(Bk * P_matrix .+ ak)*dot(fattore_∇phi_i[:, s], fattore_∇phi_j[:, s])*detBk*W_matrix[s]
+            end
+        
+        end
+        for t in 1:size(Q_vector.points, 2) # sommo su tutti i nodi di quadratura
+            fe[i] += f(Bk*q_val[:, t] + ak)*phi_val_vector[i, t] * detBk * W_vector[t]
+        end
+
+    end    
+
+
 end

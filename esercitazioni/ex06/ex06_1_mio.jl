@@ -45,10 +45,10 @@ begin
 
     # Plot the solution
     plt = plot_flat(msh, uh; plot_msh = true)
-    savefig(plt, "./figures_julia/ex06_1_solution_flat.pdf") # Save plot
+    savefig(plt, "./figures/ex06_1_solution_flat.pdf") # Save plot
 
     plt = plot_surf(msh, uh; plot_msh = true)
-    PlotlyJS.savefig(plt, "./figures_julia/ex06_1_solution_surf.pdf")
+    PlotlyJS.savefig(plt, "./figures/ex06_1_solution_surf.pdf")
     display(plt) # Save plot
 end
 
@@ -81,9 +81,9 @@ begin
     
     # Plot the solution
     plt = plot_flat(msh, uh; plot_msh = true)
-    savefig(plt, "./figures_julia/ex06_2_solution_flat.pdf") # Save plot
+    savefig(plt, "./figures/ex06_2_solution_flat.pdf") # Save plot
     
     plt = plot_surf(msh, uh; plot_msh = true)
-    PlotlyJS.savefig(plt, "./figures_julia/ex06_2_solution_surf.pdf")
+    PlotlyJS.savefig(plt, "./figures/ex06_2_solution_surf.pdf")
     display(plt) # Save plot
 end
