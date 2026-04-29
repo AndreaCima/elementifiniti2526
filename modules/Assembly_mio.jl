@@ -84,12 +84,12 @@ Impose Dirichlet boundary conditions on the system.
 - `uh`: The solution vector with Dirichlet conditions applied.
 """
 function impose_dirichlet(A, b, g, mesh)
-    F = mesh.freedofs
-    D = mesh.dirichletdofs
+    F = get_freedofs(mesh)
+    D = get_dirichletdofs(mesh)
     T = mesh.T
     p = mesh.p
 
-    pD = p[:, T[D]] # coordinate dei punti di bordo
+    pD = p[:, D] # coordinate dei punti di bordo
 
     A_cond = A[F, F]
     b_cond = b[F] - A[F, D]*g.(eachcol(pD))
@@ -230,9 +230,46 @@ Assemble the local stiffness matrix and force vector for the transport problem.
 - `fe`: The assembled local force vector.
 """
 function transport_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index::Integer, f, k, β; stab = nothing, δ = 0.5)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+    B, a = get_Bk!(mesh)
+    detB = get_detBk!(mesh)
+    invB = get_invBk!(mesh)
+
+    Bk = B[:, :, cell_index]
+    ak = a[:, cell_index]
+    detBk = detB[cell_index]
+    invBk = invB[:, :, cell_index]
+
+    ref_quad = Q2_ref
+    phi_grad = ∇shapef_2DLFE(ref_quad) 
+    phi_val = shapef_2DLFE(ref_quad)
+    WQ = ref_quad.weights
+    PQ = ref_quad.points
+
+    PQ_trasf = Bk * PQ .+ ak
+
+
+    # Inizializzo le nuove Ke e f a zero
+    fill!(Ke, 0)
+    fill!(fe, 0)
+
+    for i in 1:3
+        for t in 1:size(PQ, 2) # sommo su tutti i nodi di quadratura
+            fe[i] += f(PQ_trasf[:, t])*phi_val[i, t] * detBk * WQ[t]
+        end
+
+        for j in 1:3
+            for s in 1:size(WQ, 2)
+                fattore_∇phi_i = transpose(invBk) * phi_grad[:, i, :]
+                fattore_∇phi_j = transpose(invBk) * phi_grad[:, j, :]
+
+                Ke[i, j] += k(PQ_trasf) * detBk * WQ[s] * dot(fattore_∇phi_i[:, s], fattore_∇phi_j[:, s]) + 
+                dot(β(PQ_trasf), fattore_∇phi_j[:, s]) * phi_val[i, s] * detBk * WQ[s]
+
+            end
+        end
+    end
+
+    return Ke, fe
 end
 
 ########################### DARCY PROBLEM ###########################
