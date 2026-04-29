@@ -53,8 +53,8 @@ for (i, h) in enumerate(msh_sizes)
     Linf_error[i] = norm(Ih_uexact - uh, Inf)
     L2Q0_error[i] = L2error(u_exact, uh, msh, Q0_ref)
     L2Q2_error[i] = L2error(u_exact, uh, msh, Q2_ref)
-    # H1Q0_error[i] = sqrt(H1semierror(∇u_exact, uh, msh, Q0_ref)^2 + L2Q0_error[i]^2)
-    # H1Q2_error[i] = sqrt(H1semierror(∇u_exact, uh, msh, Q2_ref)^2 + L2Q2_error[i]^2)
+    H1Q0_error[i] = sqrt(H1semierror(∇u_exact, uh, msh, Q0_ref)^2 + L2Q0_error[i]^2)
+    H1Q2_error[i] = sqrt(H1semierror(∇u_exact, uh, msh, Q2_ref)^2 + L2Q2_error[i]^2)
 end
 end
 
@@ -62,8 +62,8 @@ end
 begin
     plt = plot(msh_sizes, Linf_error, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{L^\infty}$", marker=:circle)
     plot!(msh_sizes, L2Q0_error, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{L^2}$", marker=:rect)
-    # plot!(msh_sizes, H1Q0_error, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{H^1}$", marker=:utriangle)
-    # plot!(msh_sizes, Linf_error[1] .* msh_sizes .^ 2, xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h^2)$")
+    plot!(msh_sizes, H1Q0_error, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{H^1}$", marker=:utriangle)
+    plot!(msh_sizes, Linf_error[1] .* msh_sizes .^ 2, xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h^2)$")
 
     title!("Formula dei baricentri")
     xlabel!(L"$h$")
@@ -76,9 +76,9 @@ end
 begin
     plt = plot(msh_sizes, Linf_error, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{L^\infty}$", marker=:circle)
     plot!(msh_sizes, L2Q2_error, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{L^2}$", marker=:rect)
-    # plot!(msh_sizes, H1Q2_error, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{H^1}$", marker=:utriangle)
-    # plot!(msh_sizes, Linf_error[1] .* msh_sizes .^ 2, xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h^2)$")
-    # plot!(msh_sizes, H1Q2_error[1] .* msh_sizes, xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h)$")
+    plot!(msh_sizes, H1Q2_error, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{H^1}$", marker=:utriangle)
+    plot!(msh_sizes, Linf_error[1] .* msh_sizes .^ 2, xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h^2)$")
+    plot!(msh_sizes, H1Q2_error[1] .* msh_sizes, xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h)$")
 
     title!("Formula dei punti medi")
     xlabel!(L"$h$")
