@@ -119,7 +119,7 @@ Compute the shape functions for the Poisson problem.
 - `shapef`: The shape functions evaluated at the quadrature points.
 """
 function shapef_2DLFE(quadrule::TriQuad) # aggiungere @memoize prima di function una volta controllato che il codice funzioni
-    # restituisce una matrice 3 x n_quad in cui nella colonna i valoto le tre funzioni di base nell'i-esimo punto di quadratura
+    # restituisce una matrice 3 x n_quad in cui nella colonna i valuto le tre funzioni di base nell'i-esimo punto di quadratura
     PQ = quadrule.points
     shapef = zeros(3, size(PQ, 2))
     shapef[1, :] = 1 .- PQ[1, :] .- PQ[2, :] # prima funzione di base
