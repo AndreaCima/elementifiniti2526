@@ -272,7 +272,7 @@ function transport_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_inde
                 if stab == "NCAD"
                     eps_h = 0.5 * norm(β(PQ_trasf[:, s])) * h_t
                     Ke[i, j] += eps_h * detBk * WQ[s] * dot(fattore_∇phi_j[:, s], fattore_∇phi_i[:, s]) + 
-                    dot(β(PQ_trasf), fattore_∇phi_j[:, s]) * phi_val[i, s] * detBk * WQ[s]
+                    dot(β(PQ_trasf[:, s]), fattore_∇phi_j[:, s]) * phi_val[i, s] * detBk * WQ[s]
 
                 elseif stab == "NCSD"
                     eps_h = 0.5 * norm(β(PQ_trasf[:, s])) * h_t
