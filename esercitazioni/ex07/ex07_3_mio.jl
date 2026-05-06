@@ -97,6 +97,6 @@ for ϵ = ϵ_vec
     xlabel!(L"$h$")
     ylabel!(L"${\|\|u-u_h \|\|}_{L^2(\Omega)}$")
     plot!(legend=:bottomright)
-    savefig(plt, "./figures_julia/ex07_3_eps$ϵ.pdf") # Save plot
+    savefig(plt, "./figures/ex07_3_eps$ϵ.pdf") # Save plot
     plot(plt) # Show plot
 end
