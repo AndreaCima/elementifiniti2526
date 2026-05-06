@@ -238,6 +238,7 @@ function transport_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_inde
     ak = a[:, cell_index]
     detBk = detB[cell_index]
     invBk = invB[:, :, cell_index]
+    h_t = maximum(norm, [Bk[:,1], Bk[:,2], Bk[:,1] - Bk[:,2]])
 
     ref_quad = Q2_ref
     phi_grad = ∇shapef_2DLFE(ref_quad) 
@@ -254,16 +255,44 @@ function transport_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_inde
 
     for i in 1:3
         for t in 1:size(PQ, 2) # sommo su tutti i nodi di quadratura
-            fe[i] += f(PQ_trasf[:, t])*phi_val[i, t] * detBk * WQ[t]
+            if stab == "SUPG"
+                fattore_∇phi_i = transpose(invBk) * phi_grad[:, i, :]
+                tau_h = δ * h_t / maximum(norm.(β.(eachcol(PQ_trasf)), Inf))
+                fe[i] += f(PQ_trasf[:, t]) * phi_val[i, t] * detBk * WQ[t] + tau_h * f(PQ_trasf[:, t]) * dot(β(PQ_trasf[:, t]), fattore_∇phi_i[:, t]) * detBk * WQ[t]
+            else
+                fe[i] += f(PQ_trasf[:, t])*phi_val[i, t] * detBk * WQ[t]
+            end
         end
 
         for j in 1:3
             for s in 1:size(WQ, 2)
                 fattore_∇phi_i = transpose(invBk) * phi_grad[:, i, :]
                 fattore_∇phi_j = transpose(invBk) * phi_grad[:, j, :]
+                
+                if stab == "NCAD"
+                    eps_h = 0.5 * norm(β(PQ_trasf[:, s])) * h_t
+                    Ke[i, j] += eps_h * detBk * WQ[s] * dot(fattore_∇phi_j[:, s], fattore_∇phi_i[:, s]) + 
+                    dot(β(PQ_trasf), fattore_∇phi_j[:, s]) * phi_val[i, s] * detBk * WQ[s]
 
-                Ke[i, j] += k(PQ_trasf) * detBk * WQ[s] * dot(fattore_∇phi_i[:, s], fattore_∇phi_j[:, s]) + 
-                dot(β(PQ_trasf), fattore_∇phi_j[:, s]) * phi_val[i, s] * detBk * WQ[s]
+                elseif stab == "NCSD"
+                    eps_h = 0.5 * norm(β(PQ_trasf[:, s])) * h_t
+                    n_β = β(PQ_trasf[:, s]) / norm(β(PQ_trasf[:, s]))
+                    Ke[i, j] += k(PQ_trasf[:, s]) * detBk * WQ[s] * dot(fattore_∇phi_j[:, s], fattore_∇phi_i[:, s]) + 
+                    dot(β(PQ_trasf[:, s]), fattore_∇phi_j[:, s]) * phi_val[i, s] * detBk * WQ[s] + 
+                    eps_h * detBk * WQ[s] * dot(n_β, fattore_∇phi_j[:, s]) * dot(n_β, fattore_∇phi_i[:, s])
+
+                elseif stab == "SUPG"
+                    tau_h = δ * h_t / maximum(norm.(β.(eachcol(PQ_trasf)), Inf))
+                    Ke[i, j] += detBk * WQ[s] * k(PQ_trasf[:, s]) * dot(fattore_∇phi_j[:, s], fattore_∇phi_i[:, s]) + 
+                    dot(β(PQ_trasf[:, s]), fattore_∇phi_j[:, s]) * phi_val[i, s] * detBk * WQ[s] +
+                    tau_h * dot(β(PQ_trasf[:, s]), fattore_∇phi_j[:, s]) * dot(β(PQ_trasf[:, s]), fattore_∇phi_i[:, s]) * detBk * WQ[s]
+
+
+                else
+                    Ke[i, j] += k(PQ_trasf[:, s]) * detBk * WQ[s] * dot(fattore_∇phi_j[:, s], fattore_∇phi_i[:, s]) + 
+                    dot(β(PQ_trasf[:, s]), fattore_∇phi_j[:, s]) * phi_val[i, s] * detBk * WQ[s]
+
+                end
 
             end
         end
