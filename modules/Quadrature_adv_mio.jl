@@ -136,7 +136,7 @@ function L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
 
     L2error = 0.0 
 
-    for t in size(T,2)
+    for t in eachindex(axes(T, 2))
 
         a = ak[:, t]
         B = Bk[:,:, t]
@@ -144,22 +144,14 @@ function L2error(u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
         
         uh_t = uh[T[:,t]]
 
-        # ciclo sui punti di quadratura
-        for j = 1:size(WQ,2)
-            q = PQ[:, j] # j-esimo punto di quadratura
+        p = B * PQ .+ a # punti trasformati
+        u_ev = u.(eachcol(p))
+        uh_ev = φ_val' * uh_t
 
-            
-            φ_j =  φ_val[:,j] 
-            uh_val_j = dot(uh_t, φ_j) 
-
-
-            L2error += detB * WQ[j] * (abs(   u( B*q + a) -  uh_val_j ))^2 
-        end 
-
-
+        L2error += sum((u_ev - uh_ev).^2 ⋅ WQ * detB)
     end
 
-    L2error = sqrt(L2error);
+    L2error = sqrt(L2error)
     return L2error
 
 
@@ -189,35 +181,25 @@ function H1semierror(∇u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
     T = mesh.T;
 
     # valutazioni dei gradienti delle funzioni di base sui punti di quadratura di riferimento
-    ∇φ_val = ∇shapef_2DLFE(ref_quad)
+    ∇φ = ∇shapef_2DLFE(ref_quad)
 
     H1semierror = 0.0
-    # Ciclo sui triangoli (calcola gli integrali localmente e li somma)
-    for t in size(T,2)
+    # Ciclo sui triangoli 
+    for t in eachindex(axes(T, 2))
 
         # richiama le quantità sull'elemento t fissato
         a = ak[:, t]
         B = Bk[:,:, t]
         invB = invBk[:, :, t]
         detB = detBk[t]
+        p = B*PQ .+ a
         
         # valori della funzione approssimata uh sui tre vertici del triangolo t fissato
         uh_t = uh[T[:,t]]
-
-        # ciclo sui punti di quadratura
-        for j = 1:size(WQ,2)
-            q = PQ[:, j] # j-esimo punto di quadratura sul triangolo di riferimento
-
-            ∇uh_j = zeros(2)
-            for i =1:3
-                ∇uh_j += uh_t[i] * ( (invB)'* ∇φ_val[:,i,j]   )
-            end 
-
-
-
-            H1semierror += detB* WQ[j] * (norm(   ∇u( B*q + a) -  ∇uh_j ))^2 
-        end 
-
+        ∇φ_trasf = mapslices(x -> invB' * x, ∇shapef_2DLFE(ref_quad), dims=(1, 2) )
+        ∇uh = dropdims(mapslices(x -> x * uh_t, ∇φ_trasf, dims=(1, 2) ); dims=2) # tensore 2 x 1 x n_quad diventa 2 x n_quad
+        ∇u_ev = hcat(∇u.(eachcol(p))...) # i ... servono a spacchettare una collezione nei suoi elementi individuali
+        H1semierror += detB * (norm.(eachcol(∇uh - ∇u_ev))).^2 ⋅ WQ 
 
     end
 
