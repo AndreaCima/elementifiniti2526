@@ -195,7 +195,33 @@ Compute the H1 semi-norm error between the gradient of a function and a finite e
 - `H1_semi_error::Float64`: The H1 semi-norm error between the gradient of the exact solution and the finite element solution.
 """
 function H1semierror(∇u::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+    # Compute matrices for pushforward of reference element
+    Bk, ak = get_Bk!(mesh)
+    # Compute the absolute value of the determinant
+    detBk = get_detBk!(mesh)
+    invBk = get_invBk!(mesh)
+    # Get quadrature points and weights on the reference element
+    points_refelem, weights_refelem = ref_quad.points, ref_quad.weights
+    ∇shapef_refelem = ∇shapef_2DLFE(ref_quad)
+    points_elem = zeros(Float64, size(points_refelem))
+    u_evals = zeros(Float64, size(weights_refelem))
+
+    # Loop across all elements
+    n_tri = size(mesh.T, 2)
+    I_approx::Float64 = 0
+    for i = 1:n_tri
+        points_elem = Bk[:, :, i] * points_refelem .+ ak[:, i] # Points in the current element
+        # Gradient of the exact solution
+        ∇u_evals = mapslices(∇u, points_elem, dims=1)
+        # Gradient of the FEM solution
+        ∇uh_evals = zeros(size(∇u_evals))
+        ∇shapef = mapslices(x -> invBk[:, :, i]' * x, ∇shapef_refelem, dims=(1, 2))
+        triangle = mesh.T[:, i]
+        coeff = uh[triangle]
+        for j = 1:length(weights_refelem)
+            ∇uh_evals[:, j] = ∇shapef[:, :, j] * coeff
+        end
+        I_approx += sum(sum((∇u_evals-∇uh_evals) .^2, dims = 1) .* weights_refelem) * detBk[i]
+    end
+    return sqrt(I_approx)
 end

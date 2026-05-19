@@ -249,7 +249,37 @@ Assemble the local stiffness matrix and force vector for the Darcy problem.
 - `fe`: The assembled local force vector.
 """
 function darcy_assemble_local!(Ke::Matrix, fe::Vector, mesh::Mesh, cell_index::Integer, f, k)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+    n_basefuncs = 3
+    # Reset to 0
+    fill!(Ke, 0)
+    fill!(fe, 0)
+    # We use Q0 quadrule to assemble the stiffness matrix exactly
+    quadrule = Q2_ref
+    points_e = mesh.Bk[:, :, cell_index] * quadrule.points .+ mesh.ak[:, cell_index]
+    # Evaluate basis functions and their gradient
+    shapef = shapef_2DLFE(quadrule)
+    invBk = mesh.invBk[:, :, cell_index]
+    ∇shapef = mapslices(x -> invBk' * x, ∇shapef_2DLFE(quadrule), dims=(1, 2))
+    # Loop over quadrature points
+    for (q_index, q_point) in enumerate(eachcol(points_e))
+        # Get the quadrature weight
+        dΩ = quadrule.weights[q_index] * mesh.detBk[cell_index]
+        # Get the value of k at q_point
+        k_eval = k(q_point) 
+        f_eval = f(q_point)
+        # Loop over test shape functions
+        for i in 1:n_basefuncs
+            v = shapef[i, q_index]
+            ∇v = ∇shapef[:, i, q_index]
+            # Add contribution to fe
+            fe[i] += f_eval * v * dΩ
+            # Loop over trial shape functions
+            for j in 1:n_basefuncs
+                ∇u = ∇shapef[:, j, q_index]
+                # Add contribution to Ke
+                Ke[i, j] += (∇v ⋅ (k_eval * ∇u)) * dΩ
+            end
+        end
+    end
+    return Ke, fe
 end
