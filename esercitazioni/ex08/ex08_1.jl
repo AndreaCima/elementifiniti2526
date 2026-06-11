@@ -55,7 +55,7 @@ for (i, h) in enumerate(msh_sizes)
 
     # Compute error
     L2_error_p[i] = L2error_mixed_p(p, ph, msh, Q2_ref)
-    H1div_error_u[i] = H1diverror_mixed_u(u, divu, uh, msh, Q0_ref)
+    H1div_error_u[i] = H1diverror_mixed_u(u, divu, uh, msh, Q2_ref)
 end
 end
 
@@ -121,7 +121,7 @@ for (i, h) in enumerate(msh_sizes)
 
     # Compute error
     L2_error_p[i] = L2error_mixed_p(p, ph, msh, Q2_ref)
-    H1div_error_u[i] = H1diverror_mixed_u(u, divu, uh, msh, Q0_ref)
+    H1div_error_u[i] = H1diverror_mixed_u(u, divu, uh, msh, Q2_ref)
 end
 end
 
