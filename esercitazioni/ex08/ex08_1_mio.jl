@@ -32,6 +32,10 @@ begin
     divu(x) = f(x)
 end
 
+# in questo caso divu è una costante (pari a 1), quindi P_0^{disc} la approssima esattamente
+# allo stesso modo anche u può essere rappresentato esattamente dai RT_0, perché è un polinomio di primo grado per ogni componente
+# quindi mi aspetto che l'errore H1div sia nullo
+
 
 begin
 msh_sizes = 2 .^ range(-3, -5, 6)
@@ -56,7 +60,7 @@ for (i, h) in enumerate(msh_sizes)
 
     # Compute error
     L2_error_p[i] = L2error_mixed_p(p, ph, msh, Q2_ref)
-    # H1div_error_u[i] = H1diverror_mixed_u(u, divu, uh, msh, Q2_ref)
+    H1div_error_u[i] = H1diverror_mixed_u(u, divu, uh, msh, Q2_ref)
 end
 end
 
@@ -72,13 +76,13 @@ begin
 end
 
 begin
-    # plt = plot(msh_sizes, H1div_error_u, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{H^1(\mathrm{div})}$", marker=:circle)
-    # plot!(msh_sizes, H1div_error_u[1] * msh_sizes ./ msh_sizes[1], xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h)$")
-    # xlabel!(plt, L"$h$")
-    # ylabel!(plt, "Errore")
-    # plot!(legend=:bottomright)
-    # savefig(plt, "./figures/ex08_1_H1error.pdf")
-    # plot(plt) # Show plot
+    plt = plot(msh_sizes, H1div_error_u, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{H^1(\mathrm{div})}$", marker=:circle)
+    plot!(msh_sizes, H1div_error_u[1] * msh_sizes ./ msh_sizes[1], xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h)$")
+    xlabel!(plt, L"$h$")
+    ylabel!(plt, "Errore")
+    plot!(legend=:bottomright)
+    savefig(plt, "./figures/ex08_1_H1error.pdf")
+    plot(plt) # Show plot
 end
 end
 
@@ -103,7 +107,7 @@ end
 begin
 msh_sizes = 2 .^ range(-3, -5, 6)
 L2_error_p = similar(msh_sizes)
-# H1div_error_u = similar(msh_sizes)
+H1div_error_u = similar(msh_sizes)
 for (i, h) in enumerate(msh_sizes)
     # Build the mesh with mesh-size h    
     out_file = mesh_square(h)
@@ -122,7 +126,7 @@ for (i, h) in enumerate(msh_sizes)
 
     # Compute error
     L2_error_p[i] = L2error_mixed_p(p, ph, msh, Q2_ref)
-    # H1div_error_u[i] = H1diverror_mixed_u(u, divu, uh, msh, Q2_ref)
+    H1div_error_u[i] = H1diverror_mixed_u(u, divu, uh, msh, Q2_ref)
 end
 end
 
@@ -138,13 +142,13 @@ begin
 end
 
 begin
-    # plt = plot(msh_sizes, H1div_error_u, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{H^1(\mathrm{div})}$", marker=:circle)
-    # plot!(msh_sizes, H1div_error_u[1] * msh_sizes ./ msh_sizes[1], xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h)$")
-    # xlabel!(plt, L"$h$")
-    # ylabel!(plt, "Errore")
-    # plot!(legend=:bottomright)
-    # savefig(plt, "./figures/ex08_2_H1error.pdf")
-    # plot(plt) # Show plot
+    plt = plot(msh_sizes, H1div_error_u, xaxis=:log, yaxis=:log, label=L"${\|\|u-u_h \|\|}_{H^1(\mathrm{div})}$", marker=:circle)
+    plot!(msh_sizes, H1div_error_u[1] * msh_sizes ./ msh_sizes[1], xaxis=:log, yaxis=:log, linestyle=:dash, label=L"$\mathcal{O}(h)$")
+    xlabel!(plt, L"$h$")
+    ylabel!(plt, "Errore")
+    plot!(legend=:bottomright)
+    savefig(plt, "./figures/ex08_2_H1error.pdf")
+    plot(plt) # Show plot
 end
 end
 
