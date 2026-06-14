@@ -148,15 +148,8 @@ function assemble_global_mixed(mesh::Mesh, local_assembler!)
     # println(size(B_loc))
     # println("-------------------------------")
     
-    
-
     K = [A_glob transpose(B_glob); B_glob spzeros(Ntri, Ntri)]
-
     b = [zeros(Nedges); F_glob]
-
-
-
-
 
     return K, b
 
@@ -273,10 +266,8 @@ function darcy_assemble_local_mixed!(Ae::Matrix, Be::Matrix, fe::Vector, mesh::M
     Bk = B[:, :, cell_index]
     ak = a[:, cell_index]
     detBk = detB[cell_index]
-    invBk = invB[:, :, cell_index]
 
     quadrule = Q2_ref
-
     pe = Bk * quadrule.points .+ ak # punti trasformati 
 
     shapef = shapef_2D_RT0FE(quadrule)
@@ -340,8 +331,6 @@ function L2error_mixed_p(p::Function, ph::Vector, mesh::Mesh, ref_quad::TriQuad)
     PQ = ref_quad.points;
     Bk, ak = get_Bk!(mesh);
     detBk = get_detBk!(mesh);
-    T = mesh.T;
-    Npoints = size(mesh.p, 2)
     Ntri = size(mesh.T, 2)
 
     L2error = 0.0 
@@ -351,14 +340,10 @@ function L2error_mixed_p(p::Function, ph::Vector, mesh::Mesh, ref_quad::TriQuad)
         a = ak[:, t]
         B = Bk[:,:, t]
         detB = detBk[t]
-
-        # println(ph)
-        
         ph_t = ph[t]
 
         # devo calcolare l'area di |p - ph|^2 in cui ph è costante per ogni triangolo
-
-        pe = B * PQ .+ a # punti trasformati
+        pe = B * PQ .+ a 
         p_ev = p.(eachcol(pe))
 
         L2error += (p_ev .- ph_t).^2 ⋅ WQ * detB
@@ -366,8 +351,6 @@ function L2error_mixed_p(p::Function, ph::Vector, mesh::Mesh, ref_quad::TriQuad)
 
     L2error = sqrt(L2error)
     return L2error
-
-
 
 end
 
@@ -388,7 +371,53 @@ for a mixed finite element method using Raviart-Thomas (RT0) elements on a trian
 - `Float64`: The combined H(div) error norm, i.e., `sqrt(∫|u - uh|^2) + sqrt(∫|divu - div(uh)|^2)` over the domain.
 """
 function H1diverror_mixed_u(u::Function, divu::Function, uh::Vector, mesh::Mesh, ref_quad::TriQuad)
-    ###########################################################################
-    ############################ ADD CODE HERE ################################
-    ########################################################################### 
+    
+    L2error = 0.0
+    H1_div_semi = 0.0
+
+    WQ = ref_quad.weights;
+    PQ = ref_quad.points;
+    Bk, ak = get_Bk!(mesh);
+    detBk = get_detBk!(mesh);
+    Ntri = size(mesh.T, 2)
+    divshapef = divshapef_2D_RT0FE(ref_quad)
+    shapef = shapef_2D_RT0FE(ref_quad)
+
+    for t in 1:Ntri
+        a = ak[:, t]
+        B = Bk[:,:, t]
+        detB = detBk[t]
+
+        pe = B * PQ .+ a # punti trasformati
+        divu_ev = transpose(divu.(eachcol(pe))) # divergenza esatta valutata nei punti
+        u_ev = mapslices(u, pe, dims=1)
+
+        edges = mesh.elems2edges[:, t] # indici dei tre lati del triangolo
+        
+        uh_t = uh[edges] # sono i tre valori di uh per il triangolo fissato
+        sign_t = mesh.elems2orientation[:, t] # i tre segni di orientazione 
+
+        # seminorma H1div
+        div_phi = (sign_t / detB) .* divshapef[1, :, :] # (3 x 1) .* (3 x n_quad) ---> 3 x n_quad, sto facendo un broadcasting
+        divuh_ev = sum(uh_t .* div_phi, dims=1) # sommo lungo le colonne, cioè passo da 3 x n_quad a 1 x n_quad
+
+        # errore L2
+        B_shapef = mapslices(v -> B*v, shapef, dims=1) # applico la matrice B ad ogni vettore "verticale" 2 x 1, ho ancora un tensore 2 x 3 x n_quad
+        phi = (reshape(sign_t, 1, 3, 1) ./ detB) .* B_shapef # è un tensore di dimensioni 2 x 3 x n_quad
+
+        uh_ev = reshape(uh_t, 1, 3, 1) .* phi # 2 x 3 x n_quad, trasformo il vettore hu_t e lo moltiplico per il tensore phi
+        uh_ev = sum(uh_ev, dims=2) # 2 x 1 x n_quad
+        uh_ev = reshape(uh_ev, 2, size(PQ, 2)) # 2 x n_quad
+        
+        L2error += sum((u_ev .- uh_ev).^2, dims=1) ⋅ WQ * detB
+        H1_div_semi += (divu_ev - divuh_ev).^2 ⋅ WQ * detB
+
+    end
+
+    L2error = sqrt(L2error)
+    H1_div_semi = sqrt(H1_div_semi)
+
+    error = L2error + H1_div_semi
+
+    return error 
 end
